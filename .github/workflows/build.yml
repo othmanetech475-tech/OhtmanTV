@@ -7,6 +7,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+      - run: unzip -q ohtmanTV.zip
       - uses: actions/setup-java@v4
         with:
           distribution: temurin
@@ -15,7 +16,8 @@ jobs:
         with:
           gradle-version: 8.7
       - run: gradle assembleDebug --no-daemon
+        working-directory: ohtmanTV
       - uses: actions/upload-artifact@v4
         with:
           name: ohtmanTV-apk
-          path: app/build/outputs/apk/debug/*.apk
+          path: ohtmanTV/app/build/outputs/apk/debug/*.apk
