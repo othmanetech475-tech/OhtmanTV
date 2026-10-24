@@ -1,7 +1,0 @@
-<resources>
-    <style name="Theme.Ohtman" parent="android:Theme.Material.NoActionBar">
-        <item name="android:windowBackground">#0B0E17</item>
-        <item name="android:statusBarColor">#0B0E17</item>
-        <item name="android:navigationBarColor">#0B0E17</item>
-    </style>
-</resources>
