@@ -1,6 +1,9 @@
 name: Build APK
 on:
   push:
+    paths-ignore:
+      - 'channels.json'
+      - 'logos/**'
   workflow_dispatch:
 jobs:
   build:
