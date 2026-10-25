@@ -1,0 +1,41 @@
+name: Update Matches
+on:
+  schedule:
+    - cron: '*/30 * * * *'
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Fetch matches
+        env:
+          API_KEY: ${{ secrets.FOOTBALL_API_KEY }}
+        run: |
+          python3 - <<'PY'
+          import os, json, datetime as dt, urllib.request
+          key = os.environ["API_KEY"].strip()
+          today = dt.datetime.now(dt.timezone.utc).date()
+          url = f"https://api.football-data.org/v4/matches?dateFrom={today - dt.timedelta(days=1)}&dateTo={today + dt.timedelta(days=4)}"
+          req = urllib.request.Request(url, headers={"X-Auth-Token": key})
+          data = json.load(urllib.request.urlopen(req, timeout=30))
+          out = []
+          for m in data.get("matches", []):
+              st = m.get("status", "")
+              status = "LIVE" if st in ("IN_PLAY", "PAUSED") else ("FINISHED" if st == "FINISHED" else "SCHEDULED")
+              ft = (m.get("score") or {}).get("fullTime") or {}
+              h, a = m["homeTeam"], m["awayTeam"]
+              t = int(dt.datetime.fromisoformat(m["utcDate"].replace("Z", "+00:00")).timestamp() * 1000)
+              out.append({"league": m["competition"]["name"], "home": h.get("shortName") or h["name"], "away": a.get("shortName") or a["name"], "ts": t, "status": status, "hs": ft.get("home"), "as": ft.get("away")})
+          out.sort(key=lambda x: x["ts"])
+          json.dump({"matches": out}, open("matches.json", "w", encoding="utf-8"), ensure_ascii=False)
+          print(len(out), "matches")
+          PY
+      - name: Commit matches.json
+        run: |
+          git config user.name "github-actions"
+          git config user.email "actions@github.com"
+          git add matches.json
+          git diff --cached --quiet || (git commit -m "update matches" && git push)
