@@ -4,13 +4,22 @@ on:
     paths-ignore:
       - 'channels.json'
       - 'logos/**'
+      - 'matches.json'
   workflow_dispatch:
 jobs:
   build:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - run: unzip -q ohtmanTV.zip
+        with:
+          fetch-depth: 0
+      - name: Unzip newest project zip
+        run: |
+          ls -la
+          ZIP=$(for f in *.zip; do echo "$(git log -1 --format=%ct -- "$f") $f"; done | sort -n | tail -1 | cut -d' ' -f2-)
+          echo "Using: $ZIP"
+          rm -rf ohtmanTV
+          unzip -q "$ZIP"
       - uses: actions/setup-java@v4
         with:
           distribution: temurin
