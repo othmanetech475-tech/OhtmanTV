@@ -28,7 +28,7 @@ jobs:
               ft = (m.get("score") or {}).get("fullTime") or {}
               h, a = m["homeTeam"], m["awayTeam"]
               t = int(dt.datetime.fromisoformat(m["utcDate"].replace("Z", "+00:00")).timestamp() * 1000)
-              out.append({"league": m["competition"]["name"], "home": h.get("shortName") or h["name"], "away": a.get("shortName") or a["name"], "ts": t, "status": status, "hs": ft.get("home"), "as": ft.get("away")})
+              out.append({"league": m["competition"]["name"], "home": h.get("shortName") or h["name"], "away": a.get("shortName") or a["name"], "ts": t, "status": status, "hs": ft.get("home"), "as": ft.get("away"), "hc": h.get("crest"), "ac": a.get("crest")})
           out.sort(key=lambda x: x["ts"])
           json.dump({"matches": out}, open("matches.json", "w", encoding="utf-8"), ensure_ascii=False)
           print(len(out), "matches")
